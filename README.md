@@ -5,6 +5,7 @@
 ## :hammer: Objetivos do projeto
 
 - `Aula 1`: Consumindo Uma API De Filmes Com Java
+- `Aula 2`: Gerando Figurinhas Para o Whatsapp
 
 ## 📁 Acesso ao projeto
 
