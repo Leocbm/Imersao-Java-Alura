@@ -1,50 +1,37 @@
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
-import java.util.Map;
 
 public class App {
 
     public static void main(String[] args) throws Exception {
 
         // fazer uma conexão HTTP e buscar os top 250 filmes
-
         //String url = "https://imdb-api.com/en/API/Top250Movies/k_0ojt0yvm";
-        String url = "https://mocki.io/v1/9a7c1ca9-29b4-4eb3-8306-1adb9d159060";
-        URI endereco = URI.create(url);
-        var client = HttpClient.newHttpClient();
-        var request = HttpRequest.newBuilder(endereco).GET().build();
-        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        String body = response.body();
+        //String url = "https://mocki.io/v1/9a7c1ca9-29b4-4eb3-8306-1adb9d159060";
+        String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java/api/NASA-APOD-JamesWebbSpaceTelescope.json";
+        ExtratorDeConteudo extrator = new ExtratorDeConteudoDaNasa();
+        
 
         // extrair só os dados que interessam (titulo, poster, classificação)
-
-        var parser = new JsonParser();
-        List<Map<String, String>> listaDeFilmes = parser.parse(body);
+        var http = new ClienteHttp();
+        String json = http.buscaDados(url);
+        
 
         // exibir e manipular os dados 
-
+        List<Conteudo> conteudos = extrator.extraiConteudos(json);
         var geradora = new GeradoraDeFigurinhas();
-        for (Map<String,String> filme : listaDeFilmes) {
 
-            String urlImagem = filme.get("image");
-            String titulo = filme.get("title");
+        for (int i = 0; i < 4; i++) {
             
-            try{
-                InputStream inputStream = new URL(urlImagem).openStream();
-                String nomeArquivo = titulo.replace(":", "-") + ".png";
-                System.out.println("Gerando imagem - [" + nomeArquivo + "]");
-                geradora.cria(inputStream, nomeArquivo);
-             }catch(java.io.FileNotFoundException err){
-                  System.out.println("Imagem não encontrada ou link inválido");
-             }
+            Conteudo conteudo = conteudos.get(i);
+            InputStream inputStream = new URL(conteudo.getUrlImagem()).openStream();
+            String nomeArquivo = "saida/" + conteudo.getTitulo() + ".png";
 
-            System.out.println();
+            geradora.cria(inputStream, nomeArquivo);
+
+            System.out.println(conteudo.getTitulo());
+            System.out.println(conteudo);
         }
     }
 }
